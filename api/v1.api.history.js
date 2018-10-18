@@ -344,7 +344,7 @@ module.exports = (app, DB, swaggerSpec) => {
 			if (pos < 0) {
 				sort = -1;
 				skip = 0;
-				limit = offset < 0 ? -1 * limit : 0;
+				limit = offset < 0 ? -1 * offset : 0;
 			} else {
 				sort = 1;
 				skip = pos + (offset < 0 ? offset : 0);
@@ -368,6 +368,9 @@ module.exports = (app, DB, swaggerSpec) => {
 				DB.collection("blocks").find({ "irreversible": true }).sort({ "block_num": -1 }).limit(1).toArray(callback);
 			},
 			actions: (callback) => {
+				if (limit == 0) {
+					callback(null, []);
+				}
 				DB.collection("action_traces").find(query).sort({ "receipt.recv_sequence": sort }).skip(skip).limit(limit).toArray(callback);
 			}
 		}, (err, result) => {
