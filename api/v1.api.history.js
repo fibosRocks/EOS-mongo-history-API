@@ -437,6 +437,8 @@ module.exports = (app, DB, swaggerSpec) => {
 				action_traces = action_traces.concat([element]).concat(element.inline_traces);
 			});
 			transaction.traces = action_traces;
+			delete transaction._id;
+			delete transaction.action_traces;
 			res.json(transaction);
 		});
 		/* 		let query = { id: key };
