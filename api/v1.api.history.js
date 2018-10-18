@@ -344,7 +344,7 @@ module.exports = (app, DB, swaggerSpec) => {
 			if (pos < 0) {
 				sort = -1;
 				skip = 0;
-				limit = offset < 0 ? -1 * offset : 0;
+				limit = offset < 0 ? -1 * offset + 1 : 0;
 			} else {
 				sort = 1;
 				skip = pos + (offset < 0 ? offset : 0);
