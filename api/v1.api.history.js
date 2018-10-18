@@ -424,11 +424,13 @@ module.exports = (app, DB, swaggerSpec) => {
 			}
 			let transaction = result.transaction;
 			transaction.last_irreversible_block = result.lib[0].block_num;
-			transaction.trx.receipt = result.transaction.receipt;//还缺
+			transaction.trx = {};
+			transaction.trx.receipt = result.transaction.receipt;
 			let actions = [];
 			result.transaction.action_traces.forEach(element => {
 				actions.push(element.act);
 			});
+			transaction.trx.trx = {};
 			transaction.trx.trx.actions = actions;
 			let action_traces = [];
 			result.transaction.action_traces.forEach(element => {
@@ -437,14 +439,14 @@ module.exports = (app, DB, swaggerSpec) => {
 			transaction.traces = action_traces;
 			res.json(transaction);
 		});
-/* 		let query = { id: key };
-		DB.collection("transaction_traces").findOne(query, (err, result) => {
-			if (err) {
-				console.error(err);
-				return res.status(500).end();
-			};
-			res.json(result);
-		}); */
+		/* 		let query = { id: key };
+				DB.collection("transaction_traces").findOne(query, (err, result) => {
+					if (err) {
+						console.error(err);
+						return res.status(500).end();
+					};
+					res.json(result);
+				}); */
 	}
 
 	function getTransaction(req, res) {
