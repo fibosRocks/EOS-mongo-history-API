@@ -338,7 +338,7 @@ module.exports = (app, DB, swaggerSpec) => {
 			query["act.name"] = action;
 		}
 
-		let pos = Number(req.body.pos) + 1;
+		let pos = Number(req.body.pos);
 		let offset = Number(req.body.offset);
 		if (!isNaN(pos) && !isNaN(offset)) {
 			if (pos < 0) {
@@ -346,7 +346,7 @@ module.exports = (app, DB, swaggerSpec) => {
 				skip = 0;
 			} else {
 				sort = 1;
-				skip = pos + (offset < 0 ? offset : 0) - 1;
+				skip = pos + (offset < 0 ? offset : 0);
 				skip = skip < 0 ? 0 : skip;
 			}
 			limit = Math.abs((offset + pos) < 0 ? pos : offset) + 1;
