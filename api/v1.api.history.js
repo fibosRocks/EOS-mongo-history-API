@@ -362,7 +362,7 @@ module.exports = (app, DB, swaggerSpec) => {
 					return res.status(500).end();
 			}
 			let actions = [];
-			result.forEach(element => {
+			result.actions.forEach(element => {
 				actions.push({
 					"global_action_seq": element.receipt.global_sequence,
 					"account_action_seq": element.receipt.recv_sequence,
@@ -371,7 +371,8 @@ module.exports = (app, DB, swaggerSpec) => {
 					"action_trace":element
 				})
 			});
-			res.json(actions)
+			result.actions = actions;
+			res.json(result)
 	    });
 	}
 
