@@ -370,8 +370,9 @@ module.exports = (app, DB, swaggerSpec) => {
 			actions: (callback) => {
 				if (limit == 0) {
 					callback(null, []);
+				} else {
+					DB.collection("action_traces").find(query).sort({ "receipt.recv_sequence": sort }).skip(skip).limit(limit).toArray(callback);
 				}
-				DB.collection("action_traces").find(query).sort({ "receipt.recv_sequence": sort }).skip(skip).limit(limit).toArray(callback);
 			}
 		}, (err, result) => {
 			if (err) {
