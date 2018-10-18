@@ -6,10 +6,10 @@ const async = require('async');
 module.exports = (app, DB, swaggerSpec) => {
 
 	app.get('/api-docs.json', (req, res) => {
-	  res.setHeader('Content-Type', 'application/json');
-	  res.send(swaggerSpec);
+		res.setHeader('Content-Type', 'application/json');
+		res.send(swaggerSpec);
 	});
-	
+
 	/**
 	 * @swagger
 	 *
@@ -35,7 +35,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *         required: false
 	 *         type: number
 	 */
-    app.get('/v1/history/get_accounts', getAccounts);
+	app.get('/v1/history/get_accounts', getAccounts);
 
 	/**
 	 * @swagger
@@ -57,7 +57,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *         required: false
 	 *         type: number
 	 */
-    app.get('/v1/history/get_voters/:account', getVoters);
+	app.get('/v1/history/get_voters/:account', getVoters);
 
 	/**
 	 * @swagger
@@ -84,7 +84,7 @@ module.exports = (app, DB, swaggerSpec) => {
  	 *                 type: string
  	 *                 default: all
 	 */
-    app.post('/v1/history/get_actions', getActionsPOST);
+	app.post('/v1/history/get_actions', getActionsPOST);
 
 	/**
 	 * @swagger
@@ -149,7 +149,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *         required: false
 	 *         type: number
 	 */
-    app.get('/v1/history/get_actions/:account/:action', getActions);
+	app.get('/v1/history/get_actions/:account/:action', getActions);
 
 	/**
 	 * @swagger
@@ -166,7 +166,7 @@ module.exports = (app, DB, swaggerSpec) => {
  	 *               id:
  	 *                 type: string
 	 */
-    app.post('/v1/history/get_transaction', getTransactionPOST);
+	app.post('/v1/history/get_transaction', getTransactionPOST);
 
 	/**
 	 * @swagger
@@ -177,7 +177,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *     produces:
 	 *       - application/json
 	 */
-    app.get('/v1/history/get_transaction/:id', getTransaction);
+	app.get('/v1/history/get_transaction/:id', getTransaction);
 
 	/**
 	 * @swagger
@@ -194,7 +194,7 @@ module.exports = (app, DB, swaggerSpec) => {
  	 *               controlling_account:
  	 *                 type: string
 	 */
-    app.post('/v1/history/get_controlled_accounts', getControlledAccountsPOST);
+	app.post('/v1/history/get_controlled_accounts', getControlledAccountsPOST);
 
 	/**
 	 * @swagger
@@ -205,7 +205,7 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *     produces:
 	 *       - application/json
 	 */
-    app.get('/v1/history/get_controlled_accounts/:controlling_account', getControlledAccounts);
+	app.get('/v1/history/get_controlled_accounts/:controlling_account', getControlledAccounts);
 
 	/**
 	 * @swagger
@@ -222,7 +222,7 @@ module.exports = (app, DB, swaggerSpec) => {
  	 *               public_key:
  	 *                 type: string
 	 */
-    app.post('/v1/history/get_key_accounts', getKeyAccountsPOST);
+	app.post('/v1/history/get_key_accounts', getKeyAccountsPOST);
 
 	/**
 	 * @swagger
@@ -233,317 +233,327 @@ module.exports = (app, DB, swaggerSpec) => {
 	 *     produces:
 	 *       - application/json
 	 */
-    app.get('/v1/history/get_key_accounts/:public_key', getKeyAccounts);
+	app.get('/v1/history/get_key_accounts/:public_key', getKeyAccounts);
 
 
 	// ========= Custom functions
-	function getActions(req, res){
-	    // default values
-	    let skip = 0;
-	    let limit = 10;
-	    let sort = -1;
-	    let accountName = String(req.params.account);
-	    let action = String(req.params.action);
-	
-	    let query = { $or: [
-				{"act.account": accountName}, 
-				{"act.data.receiver": accountName}, 
-				{"act.data.from": accountName}, 
-				{"act.data.to": accountName},
-				{"act.data.name": accountName},
-				{"act.data.voter": accountName},
-				{"act.authorization.actor": accountName}
-		]};
-	    if (action !== "undefined" && action !== "all"){
-	    	query["act.name"] = action;
-	    }
-	
-	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
-	    limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
-	    sort = (isNaN(Number(req.query.sort))) ? sort : Number(req.query.sort);
-	
-	    if (limit > MAX_ELEMENTS){
-	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
-	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
-	    }
-	    if (sort !== -1 && sort !== 1){
-	    	return res.status(401).send(`Sort param must be 1 or -1`);
-	    }
-	    
-	    async.parallel({
-	       actionsTotal: (callback) => {
-	       		DB.collection("action_traces").find(query).count(callback);
-	       },
-           actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
-           }
-	    }, (err, result) => {
-			if (err){
-					console.error(err);
-					return res.status(500).end();
+	function getActions(req, res) {
+		// default values
+		let skip = 0;
+		let limit = 10;
+		let sort = -1;
+		let accountName = String(req.params.account);
+		let action = String(req.params.action);
+
+		let query = {
+			$or: [
+				{ "act.account": accountName },
+				{ "act.data.receiver": accountName },
+				{ "act.data.from": accountName },
+				{ "act.data.to": accountName },
+				{ "act.data.name": accountName },
+				{ "act.data.voter": accountName },
+				{ "act.authorization.actor": accountName }
+			]
+		};
+		if (action !== "undefined" && action !== "all") {
+			query["act.name"] = action;
+		}
+
+		skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
+		limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
+		sort = (isNaN(Number(req.query.sort))) ? sort : Number(req.query.sort);
+
+		if (limit > MAX_ELEMENTS) {
+			return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+		}
+		if (skip < 0 || limit < 0) {
+			return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+		}
+		if (sort !== -1 && sort !== 1) {
+			return res.status(401).send(`Sort param must be 1 or -1`);
+		}
+
+		async.parallel({
+			actionsTotal: (callback) => {
+				DB.collection("action_traces").find(query).count(callback);
+			},
+			actions: (callback) => {
+				DB.collection("action_traces").find(query).sort({ "createdAt": sort }).skip(skip).limit(limit).toArray(callback);
+			}
+		}, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
 			}
 			res.json(result)
-	    });
+		});
 	}
 
-	function getActionsDistinct(req, res){
-	    // default values
-	    let accountName = String(req.params.account);
-	    let query = { $or: [
-				{"act.account": accountName}, 
-				{"act.data.receiver": accountName}, 
-				{"act.data.from": accountName}, 
-				{"act.data.to": accountName},
-				{"act.data.name": accountName},
-				{"act.data.voter": accountName},
-				{"act.authorization.actor": accountName}
-		]};
-	    
-	    DB.collection("action_traces").distinct("act.name", query, (err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
-	}
-
-	function getActionsPOST(req, res){
+	function getActionsDistinct(req, res) {
 		// default values
-	    let skip = 0;
-	    let limit = 10;
-	    let sort = -1;
-	    let accountName = String(req.body.account_name);
-	    let action = String(req.body.action_name);
-	
-	    let query = { $or: [
-				{"act.account": accountName}, 
+		let accountName = String(req.params.account);
+		let query = {
+			$or: [
+				{ "act.account": accountName },
+				{ "act.data.receiver": accountName },
+				{ "act.data.from": accountName },
+				{ "act.data.to": accountName },
+				{ "act.data.name": accountName },
+				{ "act.data.voter": accountName },
+				{ "act.authorization.actor": accountName }
+			]
+		};
+
+		DB.collection("action_traces").distinct("act.name", query, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
+	}
+
+	function getActionsPOST(req, res) {
+		// default values
+		let skip = 0;
+		let limit = 10;
+		let sort = -1;
+		let accountName = String(req.body.account_name);
+		let action = String(req.body.action_name);
+
+		let query = {
+			$or: [
+				/* {"act.account": accountName}, 
 				{"act.data.receiver": accountName}, 
 				{"act.data.from": accountName}, 
 				{"act.data.to": accountName},
 				{"act.data.name": accountName},
 				{"act.data.voter": accountName},
-				{"act.authorization.actor": accountName}
-		]};
-	    if (action !== "undefined"){
-	    	query["act.name"] = action;
-	    }
+				{"act.authorization.actor": accountName} */
+				{ "receipt.receiver": accountName }
+			]
+		};
+		if (action !== "undefined") {
+			query["act.name"] = action;
+		}
 
-	    let pos = Number(req.body.pos);
-	    let offset = Number(req.body.offset);
-	    if (!isNaN(pos) && !isNaN(offset)){
-	    	sort = (pos < 0) ? -1: 1;
-	    	limit = Math.abs(offset);
-	    	skip =  Math.abs(offset * ( pos * -1 - 1 ));
-	    }
-	
-	    if (limit > MAX_ELEMENTS){
-	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
-	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
-	    }
-	    if (sort !== -1 && sort !== 1){
-	    	return res.status(401).send(`Sort param must be 1 or -1`);
-	    }
+		let pos = Number(req.body.pos);
+		let offset = Number(req.body.offset);
+		if (!isNaN(pos) && !isNaN(offset)) {
+			sort = (pos < 0) ? -1 : 1;
+			limit = Math.abs(offset);
+			skip = Math.abs(offset * (pos * -1 - 1));
+		}
 
-	    async.parallel({
-	       actionsTotal: (callback) => {
-	       		DB.collection("action_traces").find(query).count(callback);
-	       },
-           actions: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
-           }
-	    }, (err, result) => {
-			if (err){
-					console.error(err);
-					return res.status(500).end();
+		if (limit > MAX_ELEMENTS) {
+			return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+		}
+		if (skip < 0 || limit < 0) {
+			return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+		}
+		if (sort !== -1 && sort !== 1) {
+			return res.status(401).send(`Sort param must be 1 or -1`);
+		}
+
+		async.parallel({
+			lib: (callback) => {
+				DB.collection("blocks").find({ "irreversible": true }).sort({ "createdAt": -1 }).limit(1).toArray(callback);
+			},
+			actions: (callback) => {
+				DB.collection("action_traces").find(query).sort({ "receipt.recv_sequence": sort }).skip(skip).limit(limit).toArray(callback);
+			}
+		}, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
 			}
 			let actions = [];
 			result.actions.forEach(element => {
+				delete element._id;
+				delete element.createdAt;
 				actions.push({
 					"global_action_seq": element.receipt.global_sequence,
 					"account_action_seq": element.receipt.recv_sequence,
 					"block_num": element.block_num,
 					"block_time": element.block_time,
-					"action_trace":element
+					"action_trace": element
 				})
 			});
 			result.actions = actions;
+			result.last_irreversible_block = lib.block.block_num;
 			res.json(result)
-	    });
+		});
 	}
 
-	function getTransactionPOST(req, res){
-		 let key = String(req.body.id);
-		 if (key === "undefined"){
-		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { id: key };
-		 DB.collection("transaction_traces").findOne(query, (err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
+	function getTransactionPOST(req, res) {
+		let key = String(req.body.id);
+		if (key === "undefined") {
+			return res.status(401).send("Wrong transactions ID!");
+		}
+		let query = { id: key };
+		DB.collection("transaction_traces").findOne(query, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
 	}
 
-	function getTransaction(req, res){
-		 let key = String(req.params.id);
-		 if (key === "undefined"){
-		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { id: key };
-		 DB.collection("transaction_traces").findOne(query, (err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
+	function getTransaction(req, res) {
+		let key = String(req.params.id);
+		if (key === "undefined") {
+			return res.status(401).send("Wrong transactions ID!");
+		}
+		let query = { id: key };
+		DB.collection("transaction_traces").findOne(query, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
 	}
 
-	function getControlledAccountsPOST(req, res){
-		 let key = String(req.body.controlling_account);
-		 if (key === "undefined"){
-		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { controlling_account: key };
-		 DB.collection("account_controls").find(query).toArray((err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
+	function getControlledAccountsPOST(req, res) {
+		let key = String(req.body.controlling_account);
+		if (key === "undefined") {
+			return res.status(401).send("Wrong transactions ID!");
+		}
+		let query = { controlling_account: key };
+		DB.collection("account_controls").find(query).toArray((err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
 	}
 
-	function getControlledAccounts(req, res){
-		 let key = String(req.params.controlling_account);
-		 if (key === "undefined"){
-		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { controlling_account: key };
-		 DB.collection("account_controls").find(query).toArray((err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
+	function getControlledAccounts(req, res) {
+		let key = String(req.params.controlling_account);
+		if (key === "undefined") {
+			return res.status(401).send("Wrong transactions ID!");
+		}
+		let query = { controlling_account: key };
+		DB.collection("account_controls").find(query).toArray((err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
 	}
 
-	function getKeyAccountsPOST(req, res){
-		 let key = String(req.body.public_key);
-		 if (key === "undefined"){
-		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { public_key: key };
-		 DB.collection("pub_keys").find(query).toArray((err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
+	function getKeyAccountsPOST(req, res) {
+		let key = String(req.body.public_key);
+		if (key === "undefined") {
+			return res.status(401).send("Wrong transactions ID!");
+		}
+		let query = { public_key: key };
+		DB.collection("pub_keys").find(query).toArray((err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
 	}
 
-	function getKeyAccounts(req, res){
-		 let key = String(req.params.public_key);
-		 if (key === "undefined"){
-		 	return res.status(401).send("Wrong transactions ID!");
-		 } 
-		 let query = { public_key: key };
-		 DB.collection("pub_keys").find(query).toArray((err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				res.json(result);
-	    });
+	function getKeyAccounts(req, res) {
+		let key = String(req.params.public_key);
+		if (key === "undefined") {
+			return res.status(401).send("Wrong transactions ID!");
+		}
+		let query = { public_key: key };
+		DB.collection("pub_keys").find(query).toArray((err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			res.json(result);
+		});
 	}
 
-	function getAccounts(req, res){
-	    let skip = 0;
-	    let limit = 10;
-	    let counterAccounts = false;
-	    let accountName = String(req.query.account);
-	
-	    let query = {};
-	    if (accountName !== "undefined"){
-	    	query.name = accountName;
-	    }
-	
-	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
-	    limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
-	    counterAccounts = (req.query.counter === "on") ? true : false;
+	function getAccounts(req, res) {
+		let skip = 0;
+		let limit = 10;
+		let counterAccounts = false;
+		let accountName = String(req.query.account);
 
-	    if (limit > MAX_ELEMENTS){
-	    	return res.status(401).send(`Max limit accounts per query = ${MAX_ELEMENTS}`);
-	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
-	    }
+		let query = {};
+		if (accountName !== "undefined") {
+			query.name = accountName;
+		}
+
+		skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
+		limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
+		counterAccounts = (req.query.counter === "on") ? true : false;
+
+		if (limit > MAX_ELEMENTS) {
+			return res.status(401).send(`Max limit accounts per query = ${MAX_ELEMENTS}`);
+		}
+		if (skip < 0 || limit < 0) {
+			return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+		}
 
 		DB.collection("accounts").find(query).skip(skip).limit(limit).toArray((err, result) => {
-				if (err){
-					console.error(err);
-					return res.status(500).end();
-				};
-				if (counterAccounts){
-					DB.collection("accounts").count((err, accs) => {
-									if (err){
-										console.error(err);
-										return res.status(500).end();
-									};
-									res.json({ allEosAccounts: accs, accounts: result });
-					});
-				} else {
-					res.json({ accounts: result });
-				}
-	    });
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			};
+			if (counterAccounts) {
+				DB.collection("accounts").count((err, accs) => {
+					if (err) {
+						console.error(err);
+						return res.status(500).end();
+					};
+					res.json({ allEosAccounts: accs, accounts: result });
+				});
+			} else {
+				res.json({ accounts: result });
+			}
+		});
 	}
 
-	function getVoters(req, res){
-	    // default values
-	    let skip = 0;
-	    let limit = 100;
-	    let sort = -1;
-	    let accountName = String(req.params.account);
-	
-	    let query = { "act.name": "voteproducer",  "act.data.producers": { $in: [accountName] } };
-	
-	    skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
-	    limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
-	    sort = (isNaN(Number(req.query.sort))) ? sort : Number(req.query.sort);
-	
-	    if (limit > MAX_ELEMENTS){
-	    	return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
-	    }
-	    if (skip < 0 || limit < 0){
-	    	return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
-	    }
-	    if (sort !== -1 && sort !== 1){
-	    	return res.status(401).send(`Sort param must be 1 or -1`);
-	    }
+	function getVoters(req, res) {
+		// default values
+		let skip = 0;
+		let limit = 100;
+		let sort = -1;
+		let accountName = String(req.params.account);
 
-	    async.parallel({
-	       votesCounter: (callback) => {
-	       		DB.collection("action_traces").find(query).count(callback);
-	       },
-           voters: (callback) => {
-           		DB.collection("action_traces").find(query).sort({"createdAt": sort}).skip(skip).limit(limit).toArray(callback);
-           }
-	    }, (err, result) => {
-			if (err){
-					console.error(err);
-					return res.status(500).end();
+		let query = { "act.name": "voteproducer", "act.data.producers": { $in: [accountName] } };
+
+		skip = (isNaN(Number(req.query.skip))) ? skip : Number(req.query.skip);
+		limit = (isNaN(Number(req.query.limit))) ? limit : Number(req.query.limit);
+		sort = (isNaN(Number(req.query.sort))) ? sort : Number(req.query.sort);
+
+		if (limit > MAX_ELEMENTS) {
+			return res.status(401).send(`Max elements ${MAX_ELEMENTS}!`);
+		}
+		if (skip < 0 || limit < 0) {
+			return res.status(401).send(`Skip (${skip}) || (${limit}) limit < 0`);
+		}
+		if (sort !== -1 && sort !== 1) {
+			return res.status(401).send(`Sort param must be 1 or -1`);
+		}
+
+		async.parallel({
+			votesCounter: (callback) => {
+				DB.collection("action_traces").find(query).count(callback);
+			},
+			voters: (callback) => {
+				DB.collection("action_traces").find(query).sort({ "createdAt": sort }).skip(skip).limit(limit).toArray(callback);
+			}
+		}, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
 			}
 			res.json(result)
-	    });
+		});
 	}
 
 	//========= end Custom Functions
