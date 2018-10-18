@@ -348,7 +348,7 @@ module.exports = (app, DB, swaggerSpec) => {
 				sort = 1;
 				skip = pos + (offset < 0 ? offset : 0) - 1;
 			}
-			limit = Math.abs(offset);
+			limit = Math.abs(offset) + 1;
 		}
 
 		if (limit > MAX_ELEMENTS) {
