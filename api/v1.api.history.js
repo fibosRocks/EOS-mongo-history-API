@@ -338,7 +338,7 @@ module.exports = (app, DB, swaggerSpec) => {
 			query["act.name"] = action;
 		}
 
-		let pos = Number(req.body.pos);
+		let pos = Number(req.body.pos) + 1;
 		let offset = Number(req.body.offset);
 		if (!isNaN(pos) && !isNaN(offset)) {
 			if (pos < 0) {
@@ -347,6 +347,7 @@ module.exports = (app, DB, swaggerSpec) => {
 			} else {
 				sort = 1;
 				skip = pos + (offset < 0 ? offset : 0) - 1;
+				skip = skip < 0 ? 0 : skip;
 			}
 			limit = Math.abs(offset) + 1;
 		}
@@ -379,7 +380,7 @@ module.exports = (app, DB, swaggerSpec) => {
 				delete element.createdAt;
 				actions.push({
 					"global_action_seq": element.receipt.global_sequence,
-					"account_action_seq": element.receipt.recv_sequence,
+					"account_action_seq": element.receipt.recv_sequence - 1,
 					"block_num": element.block_num,
 					"block_time": element.block_time,
 					"action_trace": element
