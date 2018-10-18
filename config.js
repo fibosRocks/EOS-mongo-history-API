@@ -1,5 +1,5 @@
 module.exports = {
-    serverPort: 3838,
-    mongoURL: "mongodb://localhost:27017/EOS",
-    mongoDB: "EOS"
+    serverPort: 27017,
+    mongoURL: "mongodb://localhost:27017/fibos",
+    mongoDB: "fibos"
 }
