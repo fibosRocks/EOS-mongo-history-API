@@ -409,14 +409,42 @@ module.exports = (app, DB, swaggerSpec) => {
 		if (key === "undefined") {
 			return res.status(401).send("Wrong transactions ID!");
 		}
-		let query = { id: key };
+		async.parallel({
+			lib: (callback) => {
+				DB.collection("blocks").find({ "irreversible": true }).sort({ "block_num": -1 }).limit(1).toArray(callback);
+			},
+			transaction: (callback) => {
+				let query = { id: key };
+				DB.collection("transaction_traces").findOne(query, callback);
+			}
+		}, (err, result) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end();
+			}
+			let transaction = result.transaction;
+			transaction.last_irreversible_block = result.lib[0].block_num;
+			transaction.trx.receipt = result.transaction.receipt;//还缺
+			let actions = [];
+			result.transaction.action_traces.forEach(element => {
+				actions.push(element.act);
+			});
+			transaction.trx.trx.actions = actions;
+			let action_traces = [];
+			result.transaction.action_traces.forEach(element => {
+				action_traces = action_traces.concat([element]).concat(element.inline_traces);
+			});
+			transaction.traces = action_traces;
+			res.json(transaction);
+		});
+/* 		let query = { id: key };
 		DB.collection("transaction_traces").findOne(query, (err, result) => {
 			if (err) {
 				console.error(err);
 				return res.status(500).end();
 			};
 			res.json(result);
-		});
+		}); */
 	}
 
 	function getTransaction(req, res) {
