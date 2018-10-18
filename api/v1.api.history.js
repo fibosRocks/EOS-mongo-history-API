@@ -361,7 +361,17 @@ module.exports = (app, DB, swaggerSpec) => {
 					console.error(err);
 					return res.status(500).end();
 			}
-			res.json(result)
+			let actions = [];
+			result.forEach(element => {
+				actions.push({
+					"global_action_seq": element.receipt.global_sequence,
+					"account_action_seq": element.receipt.recv_sequence,
+					"block_num": element.block_num,
+					"block_time": element.block_time,
+					"action_trace":element
+				})
+			});
+			res.json(actions)
 	    });
 	}
 
