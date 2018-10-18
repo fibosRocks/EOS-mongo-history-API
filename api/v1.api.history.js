@@ -358,7 +358,7 @@ module.exports = (app, DB, swaggerSpec) => {
 
 		async.parallel({
 			lib: (callback) => {
-				DB.collection("blocks").find({ "irreversible": true }).sort({ "createdAt": -1 }).limit(1).toArray(callback);
+				DB.collection("blocks").find({ "irreversible": true }).sort({ "block.block_num": -1 }).limit(1).toArray(callback);
 			},
 			actions: (callback) => {
 				DB.collection("action_traces").find(query).sort({ "receipt.recv_sequence": sort }).skip(skip).limit(limit).toArray(callback);
@@ -381,7 +381,8 @@ module.exports = (app, DB, swaggerSpec) => {
 				})
 			});
 			result.actions = actions;
-			result.last_irreversible_block = lib.block.block_num;
+			result.last_irreversible_block = result.lib[0].block.block_num;
+			delete result.lib;
 			res.json(result)
 		});
 	}
