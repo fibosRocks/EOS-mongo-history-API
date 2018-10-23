@@ -507,7 +507,14 @@ module.exports = (app, DB, swaggerSpec) => {
 				console.error(err);
 				return res.status(500).end();
 			};
-			res.json(result);
+			let object = {
+				"account_names": [
+				]
+			}
+			result.forEach(element => {
+				object.account_names.push(element.account);
+			})
+			res.json(object);
 		});
 	}
 
