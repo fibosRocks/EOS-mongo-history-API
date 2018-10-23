@@ -507,13 +507,16 @@ module.exports = (app, DB, swaggerSpec) => {
 				console.error(err);
 				return res.status(500).end();
 			};
-			let object = {
-				"account_names": [
-				]
-			}
+
+			let accountSet = new Set();
 			result.forEach(element => {
-				object.account_names.push(element.account);
+				accountSet.add(element.account);
 			})
+
+			let object = {
+				"account_names": Array.from(accountSet)
+			}
+
 			res.json(object);
 		});
 	}
